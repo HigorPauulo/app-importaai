@@ -12,7 +12,7 @@
 
 **Docente.** Prof. Welington Júlio.
 
-**Repositório.** a definir.
+**Repositório.** https://github.com/HigorPauulo/projeto-integrador
 
 **Equipe.** a registrar.
 
@@ -101,7 +101,7 @@ Decisão tomada vira ADR em `docs/02-modelagem/decisoes/`, com contexto, alterna
 
 | | Decisão | Opções | Até |
 |:---:|---|:---:|:---:|
-| **D1** | Nome do projeto e do repositório | | 1º push |
+| ~~D1~~ | ~~Nome do projeto e do repositório~~ | decidido: `projeto-integrador` | ✓ |
 | ~~D2~~ | ~~Recorte do domínio~~ | decidido, ver A1 | ✓ |
 | **D3** | Pilha mobile | Kotlin+Compose · Flutter · React Native | fase 5 |
 | **D4** | Persistência remota | API própria (Spring) · Supabase · Firebase | fase 5 |
