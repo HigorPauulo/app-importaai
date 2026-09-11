@@ -1,0 +1,20 @@
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Editores
+.idea/
+.vscode/
+*.swp
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Build e dependências (a refinar quando a pilha for definida na fase 5)
+node_modules/
+build/
+dist/
+*.apk
+*.aab
