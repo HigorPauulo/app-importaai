@@ -11,7 +11,7 @@ Quem é quem, o que cada um entrega e o registro de cada ciclo, no formato da fi
 | Nome da equipe | **a definir** |
 | Domínio | Planejamento e acompanhamento de compras internacionais |
 | Pilha | App em React Native, Expo e TypeScript com SQLite · API em Java 21 e Spring Boot 4 com JDBC, DAO e PostgreSQL 18 |
-| Repositório | https://github.com/HigorPauulo/projeto-integrador |
+| Repositório | https://github.com/HigorPauulo/app-importaai |
 | Quadro de tarefas | GitHub Projects do repositório |
 
 ---

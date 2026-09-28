@@ -213,7 +213,7 @@ Tocar na notificação abre o detalhe da compra. Detalhes em [ADR-007](decisoes/
 ## Ambientes e repositório
 
 ```
-projeto-integrador/
+app-importaai/
   app/            Expo
   api/            Spring Boot
   docs/           documentação
