@@ -1,70 +1,73 @@
 # Documentação
 
-Projeto Integrador · ADS1253 · PUC Goiás · 2026/2
-
-Estado geral e cronograma em [`ROADMAP.md`](../ROADMAP.md).
-
-`rascunho` pendente de aprovação · `aprovado` validado pela equipe
+Índice de toda a documentação do Importa Aí. Comece pela [visão do produto](01-produto/visao.md).
 
 ---
 
-## 1 · Escopo
+## Produto
 
-O documento de escopo exigido pelo norteador. **Em revisão.**
+| Documento | Responde |
+|---|---|
+| [Visão](01-produto/visao.md) | Qual problema, para quem, com que objetivos e o que fica de fora |
+| [Glossário](01-produto/glossario.md) | O que significa cada termo do domínio |
+| [Requisitos](01-produto/requisitos.md) | O que o sistema faz e com que qualidade |
+| [Regras de negócio](01-produto/regras-de-negocio.md) | Que regras o sistema impõe e como verificá-las |
 
-| | Documento | O que responde | Estado |
-|:---:|---|---|:---:|
-| A1 | [Domínio](01-escopo/dominio.md) | Que problema, de quem, e o que fica de fora | `rascunho` |
-| A2 | [Personas](01-escopo/personas.md) | Quem usa e em que situação | `rascunho` |
-| A3 | [Requisitos](01-escopo/requisitos.md) | O que o sistema faz e quais qualidades tem | `rascunho` |
-| A4 | [Regras de negócio](01-escopo/regras-de-negocio.md) | Que condições o domínio impõe | `rascunho` |
+## Arquitetura
+
+| Documento | Responde |
+|---|---|
+| [Visão geral](02-arquitetura/visao-geral.md) | Como o sistema se divide, onde cada regra roda, como sincroniza |
+| [API](02-arquitetura/api.md) | Rotas, formatos e erros |
+| [Modelo de domínio](02-arquitetura/modelo-de-dominio.md) | Classes, objetos de valor, regras de alerta e estados |
+| [Modelo de dados](02-arquitetura/modelo-de-dados.md) | Tabelas, garantias no banco, índices e base local · [SQL](02-arquitetura/sql/) |
+| [Sincronização](02-arquitetura/sincronizacao.md) | Como aparelho e servidor trocam alterações sem perder nem duplicar |
+| [Decisões](02-arquitetura/decisoes/) | Por que cada tecnologia e abordagem, e o que foi descartado |
+
+## Design
+
+| Documento | Responde |
+|---|---|
+| [Telas](03-design/telas.md) | Que telas existem, como se ligam e o que mostram em cada estado |
+| [Protótipo](03-design/prototipo.md) | Onde está no Figma e como percorrê-lo |
+| [Usabilidade e acessibilidade](03-design/usabilidade-e-acessibilidade.md) | Que decisões de interface foram tomadas e por quê |
+
+## Projeto
+
+| Documento | Responde |
+|---|---|
+| [Backlog](04-projeto/backlog.md) | O que será construído, por quem e quando |
+| [Equipe](04-projeto/equipe.md) | Quem é responsável por quê, e o registro de cada ciclo |
+| [Roadmap](../ROADMAP.md) | Onde estamos, próximos passos e riscos |
+| [Como contribuir](../CONTRIBUTING.md) | Branches, commits, revisão e definição de pronto |
+
+## Qualidade
+
+| Documento | Responde |
+|---|---|
+| [Plano de testes](05-qualidade/plano-de-testes.md) | Como cada requisito e regra é verificado |
+| [Rastreabilidade](05-qualidade/rastreabilidade.md) | Onde cada requisito aparece: regra, dados, tela, teste e código |
+
+## Entregas
+
+| Documento | Responde |
+|---|---|
+| [N1](06-entregas/n1.md) | O que a N1 exige, como montar o PDF e a apresentação |
+| [Declaração de uso de IA](06-entregas/declaracao-ia.md) | Como a IA foi usada no projeto |
+
+## Referência
+
+[Documento Norteador e material da disciplina](00-referencia/) · [Referências bibliográficas](00-referencia/referencias.md). Em caso de divergência, **o Norteador prevalece**.
 
 ---
 
-## 2 · Modelagem
+## Convenções
 
-| | Documento | O que responde | Estado |
-|:---:|---|---|:---:|
-| A6 | [Modelagem de dados](02-modelagem/der.md) | Como o dado é estruturado e por quê | `rascunho` |
-| A7 | Arquitetura | Como as camadas se organizam | pendente de D3 |
-| A8 | ADRs | Que decisões foram tomadas, e o que foi descartado | pendente de D3 |
-
-O diagrama em si nasce em ferramenta própria (draw.io) quando o escopo for aprovado. Este documento é o memorial que justifica o modelo.
-
----
-
-## 3 · Interfaces
-
-| | Documento | O que responde | Estado |
-|:---:|---|---|:---:|
-| A9 | [Navegação e telas](03-interfaces/navegacao.md) | Que telas existem e como se conectam | `rascunho` |
-| A10 | Protótipo navegável | Como as telas se parecem e se comportam | pendente |
-| A11 | Usabilidade e acessibilidade | Que decisões de interface foram tomadas | pendente |
-
----
-
-## 4 · Gestão
-
-| | Documento | O que responde | Estado |
-|:---:|---|---|:---:|
-| A12 | [Backlog](04-gestao/backlog.md) | O que será construído, em que ordem | `rascunho` |
-| A14 | [Rastreabilidade](04-gestao/rastreabilidade.md) | Onde cada requisito é verificável | `rascunho` |
-| A13 | Responsabilidades por ciclo | Quem faz o quê, por ciclo | pendente |
-
----
-
-## 0 · Referência
-
-[Documento Norteador](00-referencia/) e material da disciplina. **Em caso de divergência, o norteador prevalece.**
-
----
-
-## Como esta documentação se organiza
-
-**A ordem importa.** Cada bloco se apoia no anterior: escopo define modelagem, que define arquitetura. Documento escrito fora de ordem vira retrabalho quando o bloco anterior muda.
-
-**Pasta nasce com o primeiro arquivo.** Não há pasta vazia esperando conteúdo futuro.
-
-**Uma fonte de verdade por artefato.** O diagrama vive na ferramenta de diagrama; o markdown justifica as decisões que o diagrama não expressa, sem redesenhá-lo.
-
-**Português na documentação, inglês no código.** Documento acadêmico tem banca brasileira; código segue convenção universal.
+| Prefixo | Significado |
+|:---:|---|
+| RF · RNF | Requisito funcional · não funcional |
+| RN | Regra de negócio |
+| US · H | História de usuário · item técnico |
+| T | Tela |
+| CT | Caso de teste |
+| ADR | Registro de decisão de arquitetura |
