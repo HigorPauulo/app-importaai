@@ -12,7 +12,8 @@
 /docs/02-arquitetura/api.md            @HigorPauulo @Dioogooa
 /docs/02-arquitetura/sincronizacao.md  @HigorPauulo @Dioogooa
 
-# Regras do repositório e do assistente: responsável técnico
-/.github/               @HigorPauulo
-/.claude/               @HigorPauulo
-/CLAUDE.md              @HigorPauulo
+# Regras do repositório e do assistente: qualquer um dos dois aprova.
+# Com um dono só, o PR dele nessas pastas nunca teria revisor que não fosse ele mesmo.
+/.github/               @HigorPauulo @Dioogooa
+/.claude/               @HigorPauulo @Dioogooa
+/CLAUDE.md              @HigorPauulo @Dioogooa

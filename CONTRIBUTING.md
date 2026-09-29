@@ -154,7 +154,8 @@ Configuradas no repositório, para que as regras acima não dependam de memória
 
 | Onde | Proteção |
 |---|---|
-| `main` e `develop` | PR obrigatório, 1 aprovação, revisão do CODEOWNER, CI verde, conversas resolvidas, sem force push, sem exclusão |
+| `main` e `develop` | PR obrigatório, 1 aprovação, revisão do CODEOWNER, CI verde, conversas resolvidas, sem force push, sem exclusão. Vale também para o administrador |
+| `develop` | Histórico linear (só rebase) |
 | Repositório | Só **Rebase** e **Merge commit** habilitados (squash desligado); branch apagada após o merge |
 
 ---
