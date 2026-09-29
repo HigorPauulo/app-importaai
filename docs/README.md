@@ -39,7 +39,8 @@
 | [Backlog](04-projeto/backlog.md) | O que será construído, por quem e quando |
 | [Equipe](04-projeto/equipe.md) | Quem é responsável por quê, e o registro de cada ciclo |
 | [Roadmap](../ROADMAP.md) | Onde estamos, próximos passos e riscos |
-| [Como contribuir](../CONTRIBUTING.md) | Branches, commits, revisão e definição de pronto |
+| [Como contribuir](../CONTRIBUTING.md) | Branches, commits, PR, revisão, versões e definição de pronto |
+| [Regras do assistente](../CLAUDE.md) | Como o Claude Code trabalha neste repositório |
 
 ## Qualidade
 
