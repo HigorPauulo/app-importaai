@@ -1,0 +1,6 @@
+# Toda issue nasce de um modelo: história ou defeito
+blank_issues_enabled: false
+contact_links:
+  - name: Documentação do projeto
+    url: https://github.com/HigorPauulo/app-importaai/tree/develop/docs
+    about: Especificação, arquitetura, backlog e plano de testes
