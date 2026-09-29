@@ -1,65 +1,68 @@
-# Projeto Integrador · ADS1253 · 2026/2
+# Importa Aí
 
-![Disciplina](https://img.shields.io/badge/ADS1253-PUC%20Goi%C3%A1s-1F3864) ![Semestre](https://img.shields.io/badge/semestre-2026%2F2-4B5563) ![Fase](https://img.shields.io/badge/fase-escopo-D9A441) ![Estado](https://img.shields.io/badge/artefatos-rascunho-9CA3AF)
+![Disciplina](https://img.shields.io/badge/ADS1253-PUC%20Goi%C3%A1s-1F3864) ![Semestre](https://img.shields.io/badge/semestre-2026%2F2-4B5563) ![App](https://img.shields.io/badge/app-React%20Native%20%2B%20Expo-0D6EFD) ![API](https://img.shields.io/badge/API-Spring%20Boot%20%2B%20PostgreSQL-2EA145)
 
-Aplicação móvel para acompanhamento de compras internacionais, com rastreio integrado.
-
-> **Estado:** especificação concluída · implementação não iniciada · pilha em definição. Ver [`ROADMAP.md`](ROADMAP.md).
+Aplicativo Android para quem compra no exterior: **estima o custo final antes da compra** e **acompanha a encomenda depois dela**, avisando a tempo de pagar a taxa, reclamar de um atraso ou investigar um pacote parado, inclusive sem internet.
 
 ---
 
-## O problema
+## O que faz
 
-Ferramentas de rastreio sabem **onde o pacote está**. Não sabem o que há dentro, quanto custou, qual prazo foi prometido nem se houve imposto. Sem esse cruzamento, três falhas se repetem:
-
-| Falha | Consequência |
+| Antes da compra | Depois da compra |
 |---|---|
-| Aviso de taxa não percebido | Devolução e perda integral do valor |
-| Atraso não percebido | Perda da janela de reclamação |
-| Pacote parado sem aviso | Extravio descoberto fora do prazo |
+| Registra ofertas de lojas diferentes | Importa o rastreio automaticamente |
+| Calcula o custo final: preço, frete, câmbio e imposto | Mostra onde cada pacote está e o que exige atenção |
+| Compara ofertas do mesmo produto e aponta a mais barata | Avisa de taxa, atraso, pacote parado e prazo de reclamação |
+| Transforma a oferta escolhida em compra | Consolida gastos, impostos e pontualidade das lojas |
 
-O aplicativo cruza o que só o comprador sabe (produto, valor, loja, prazo prometido, imposto) com o que a fonte de rastreio informa, e alerta antes que o prazo passe.
+Tudo funciona sem conexão e sincroniza quando a rede volta. Um perfil de administrador cuida de contas, câmbio, parâmetros fiscais e da integração, sem acesso às compras dos usuários.
 
-## Perfis
+## Como funciona
 
-| | Acesso |
+| Parte | Tecnologia |
 |---|---|
-| **Comprador** | Mantém as próprias compras e lojas, acompanha o rastreio, recebe alertas |
-| **Administrador** | Gerencia contas e a saúde da integração. **Não vê conteúdo de compra** |
+| App | React Native, Expo e TypeScript, com SQLite no aparelho |
+| API | Java 21 e Spring Boot 4, com JDBC, DAOs e PostgreSQL 18 |
+| Integrações | Fonte de rastreio, fonte de cotação e notificações push |
 
-## Modelo de dados
+O app lê e grava primeiro no aparelho e sincroniza com a API em segundo plano. A API importa o rastreio, calcula a situação das compras e dispara os alertas. Detalhes na [arquitetura](docs/02-arquitetura/visao-geral.md).
 
-Seis entidades: `users` · `stores` · `purchases` · `tracking_events` · `exchange_rates` · `notifications`.
+## Estrutura
 
-Duas decisões governam o esquema:
+```
+app/          aplicativo (Expo)
+api/          serviço (Spring Boot)
+docs/         documentação
+compose.yml   PostgreSQL para desenvolvimento
+```
 
-> **O estado da compra não é armazenado.** É derivado do último evento de rastreio (RN01). Estado ao lado dos eventos que o determinam cria duas fontes de verdade, que divergem na primeira falha de sincronização.
+## Como rodar
 
-> **O valor em reais não é armazenado.** Vem da cotação da data da compra (RN07). Pela cotação corrente, o consolidado oscilaria todo dia sem nenhuma compra ter mudado.
+> A estrutura de código é criada no Ciclo 1. Esta seção será completada com a primeira versão executável.
+
+Requisitos: Node 24, Java 21, Docker.
+
+```bash
+cp .env.example .env            # preencher as variáveis
+docker compose up -d            # PostgreSQL
+cd api && ./mvnw spring-boot:run
+cd app && npm install && npx expo start
+```
+
+O APK de demonstração e as credenciais de teste de cada perfil serão publicados aqui na entrega da N2.
 
 ## Documentação
 
-| | Documento | Conteúdo |
-|---|---|---|
-| | [`ROADMAP.md`](ROADMAP.md) | Estado, artefatos, cronograma, decisões |
-| A1 | [Domínio](docs/01-escopo/dominio.md) | Escopo, vocabulário, cortes |
-| A2 | [Personas](docs/01-escopo/personas.md) | Público-alvo e cenário de demonstração |
-| A3 | [Requisitos](docs/01-escopo/requisitos.md) | 19 funcionais, 10 não funcionais |
-| A4 | [Regras de negócio](docs/01-escopo/regras-de-negocio.md) | 9 regras verificáveis |
-| A12 | [Backlog](docs/04-gestao/backlog.md) | 33 histórias, 7 épicos, 96 pontos |
-| A6 | [Modelagem](docs/02-modelagem/der.md) | DER, dicionário, normalização, índices |
-| A9 | [Navegação](docs/03-interfaces/navegacao.md) | Mapa e 11 telas com estados |
-| A14 | [Rastreabilidade](docs/04-gestao/rastreabilidade.md) | Requisito → regra → tela → teste → commit |
-| | `docs/00-referencia/` | Documento Norteador e material da disciplina |
+| Para | Leia |
+|---|---|
+| Entender o produto | [Visão](docs/01-produto/visao.md) · [Requisitos](docs/01-produto/requisitos.md) · [Regras de negócio](docs/01-produto/regras-de-negocio.md) |
+| Desenvolver | [Arquitetura](docs/02-arquitetura/visao-geral.md) · [API](docs/02-arquitetura/api.md) · [Modelo de dados](docs/02-arquitetura/modelo-de-dados.md) · [Decisões](docs/02-arquitetura/decisoes/) |
+| Desenhar | [Telas](docs/03-design/telas.md) · [Protótipo](docs/03-design/prototipo.md) |
+| Acompanhar | [Roadmap](ROADMAP.md) · [Backlog](docs/04-projeto/backlog.md) |
+| Contribuir | [CONTRIBUTING](CONTRIBUTING.md) |
 
-## Instalação e execução
-
-Pendente da definição da pilha (decisões **D3** e **D4** do roadmap). Esta seção receberá requisitos de ambiente, passos de execução, variáveis necessárias e credenciais de teste por perfil, conforme a Seção 9 do Documento Norteador.
-
-## Convenções
-
-Documentação em português, código em inglês · commits em português, no imperativo · `main` estável, `develop` integração, `feature/*` por funcionalidade · integração por PR revisado por outro integrante · credenciais em variável de ambiente, nunca versionadas.
+Índice completo em [docs](docs/README.md).
 
 ---
 
-Atividade Externa da Disciplina (AED) · ADS1253 Programação Orientada a Objeto com Banco de Dados · PUC Goiás · 2026/2 · Prof. Welington Júlio.
+Projeto Integrador · ADS1253 Programação Orientada a Objeto com Banco de Dados · PUC Goiás · 2026/2 · Prof. Welington Júlio.

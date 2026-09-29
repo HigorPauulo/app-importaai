@@ -1,0 +1,297 @@
+// Importa Aí · modelo relacional da API
+// GERADO por generate-diagram.sh a partir de schema-postgres.sql. Não editar à mão.
+// Checks, gatilhos e índices parciais estão no SQL; este arquivo serve ao diagrama.
+
+Project importa_ai {
+  database_type: 'PostgreSQL'
+  Note: 'Situação da compra, valor em reais e custo simulado são derivados, nunca gravados (RN01, RN07, RN10).'
+}
+
+Table "currencies" {
+  "code" char(3) [pk, not null]
+  "name" varchar(60) [not null]
+  "minor_units" smallint [not null, default: 2]
+  "is_active" boolean [not null, default: true]
+}
+
+Table "users" {
+  "id" bigint [pk, not null, increment]
+  "name" varchar(120) [not null]
+  "email" varchar(180) [unique, not null]
+  "password_hash" varchar(255) [not null]
+  "role" varchar(8) [not null, default: 'BUYER']
+  "is_blocked" boolean [not null, default: false]
+  "blocked_by" bigint
+  "blocked_at" timestamptz
+  "failed_login_attempts" smallint [not null, default: 0]
+  "locked_until" timestamptz
+  "last_login_at" timestamptz
+  "created_at" timestamptz [not null, default: `now()`]
+  "updated_at" timestamptz [not null, default: `now()`]
+
+}
+
+Table "refresh_tokens" {
+  "id" bigint [pk, not null, increment]
+  "user_id" bigint [not null]
+  "family_id" uuid [not null]
+  "token_hash" char(64) [unique, not null]
+  "expires_at" timestamptz [not null]
+  "revoked_at" timestamptz
+  "replaced_by" bigint
+  "created_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    family_id [name: "ix_refresh_tokens_family"]
+    user_id [name: "ix_refresh_tokens_user_active"]
+  }
+}
+
+Table "devices" {
+  "id" bigint [pk, not null, increment]
+  "user_id" bigint [not null]
+  "push_token" varchar(255) [unique, not null]
+  "platform" varchar(8) [not null, default: 'ANDROID']
+  "created_at" timestamptz [not null, default: `now()`]
+  "last_seen_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    user_id [name: "ix_devices_user"]
+  }
+}
+
+Table "stores" {
+  "id" uuid [pk, not null]
+  "user_id" bigint [unique, not null]
+  "name" varchar(120) [not null]
+  "country_code" char(2)
+  "website" varchar(255)
+  "row_version" integer [not null, default: 1]
+  "change_xid" xid8 [not null, default: `pg_current_xact_id()`]
+  "last_mutation_id" uuid
+  "created_at" timestamptz [not null, default: `now()`]
+  "updated_at" timestamptz [not null, default: `now()`]
+  "deleted_at" timestamptz
+
+  Indexes {
+    (user_id, id) [unique, name: "ux_stores_user_id"]
+    (user_id, change_xid) [name: "ix_stores_user_change"]
+  }
+}
+
+Table "product_groups" {
+  "id" uuid [pk, not null]
+  "user_id" bigint [not null]
+  "name" varchar(180) [not null]
+  "row_version" integer [not null, default: 1]
+  "change_xid" xid8 [not null, default: `pg_current_xact_id()`]
+  "last_mutation_id" uuid
+  "created_at" timestamptz [not null, default: `now()`]
+  "updated_at" timestamptz [not null, default: `now()`]
+  "deleted_at" timestamptz
+
+  Indexes {
+    (user_id, id) [unique, name: "ux_product_groups_user_id"]
+    (user_id, change_xid) [name: "ix_product_groups_user_change"]
+  }
+}
+
+Table "purchases" {
+  "id" uuid [pk, not null]
+  "user_id" bigint [not null]
+  "store_id" uuid [not null]
+  "product_description" varchar(180) [not null]
+  "tracking_code" varchar(40) [not null]
+  "purchase_date" date [not null]
+  "promised_date" date [not null]
+  "amount" numeric(12,2) [not null]
+  "shipping_amount" numeric(12,2) [not null, default: 0]
+  "currency" char(3) [not null]
+  "tax_amount" numeric(12,2)
+  "tax_due_date" date
+  "tax_paid_at" timestamptz
+  "received_at" date
+  "notes" text
+  "archived_at" timestamptz
+  "tracking_checked_at" timestamptz
+  "row_version" integer [not null, default: 1]
+  "change_xid" xid8 [not null, default: `pg_current_xact_id()`]
+  "last_mutation_id" uuid
+  "created_at" timestamptz [not null, default: `now()`]
+  "updated_at" timestamptz [not null, default: `now()`]
+  "deleted_at" timestamptz
+
+  Indexes {
+    (user_id, id) [unique, name: "ux_purchases_user_id"]
+    (user_id, tracking_code) [unique, name: "ux_purchases_user_tracking"]
+    promised_date [name: "ix_purchases_open_promised"]
+    tracking_checked_at [name: "ix_purchases_open_tracking"]
+    (user_id, store_id) [name: "ix_purchases_store"]
+    (user_id, change_xid) [name: "ix_purchases_user_change"]
+  }
+}
+
+Table "offers" {
+  "id" uuid [pk, not null]
+  "user_id" bigint [not null]
+  "product_group_id" uuid [not null]
+  "store_id" uuid [not null]
+  "price" numeric(12,2) [not null]
+  "shipping_amount" numeric(12,2) [not null, default: 0]
+  "currency" char(3) [not null]
+  "product_url" varchar(500)
+  "purchase_id" uuid [unique]
+  "row_version" integer [not null, default: 1]
+  "change_xid" xid8 [not null, default: `pg_current_xact_id()`]
+  "last_mutation_id" uuid
+  "created_at" timestamptz [not null, default: `now()`]
+  "updated_at" timestamptz [not null, default: `now()`]
+  "deleted_at" timestamptz
+
+  Indexes {
+    (user_id, store_id) [name: "ix_offers_store"]
+    (user_id, change_xid) [name: "ix_offers_user_change"]
+    (user_id, product_group_id) [name: "ix_offers_user_group"]
+  }
+}
+
+Table "tracking_events" {
+  "id" bigint [pk, not null, increment]
+  "purchase_id" uuid [not null]
+  "occurred_at" timestamptz [not null]
+  "description" varchar(255) [not null]
+  "location" varchar(120)
+  "stage" varchar(24) [not null]
+  "fingerprint" char(64) [not null]
+  "change_xid" xid8 [not null, default: `pg_current_xact_id()`]
+  "created_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (purchase_id, fingerprint) [unique, name: "ux_tracking_events_fingerprint"]
+    change_xid [name: "ix_tracking_events_change"]
+    (purchase_id, occurred_at) [name: "ix_tracking_events_timeline"]
+  }
+}
+
+Table "notification_occurrences" {
+  "purchase_id" uuid [not null]
+  "reason" varchar(16) [not null]
+  "occurrence_key" varchar(40) [not null]
+  "created_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (purchase_id, reason, occurrence_key) [pk, type: btree, name: "notification_occurrences_pkey"]
+  }
+}
+
+Table "notifications" {
+  "id" bigint [pk, not null, increment]
+  "user_id" bigint [not null]
+  "purchase_id" uuid [not null]
+  "reason" varchar(16) [not null]
+  "occurrence_key" varchar(40) [not null]
+  "message" varchar(255) [not null]
+  "read_at" timestamptz
+  "push_status" varchar(8) [not null, default: 'PENDING']
+  "push_attempts" smallint [not null, default: 0]
+  "created_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (purchase_id, reason, occurrence_key) [unique, name: "ux_notifications_occurrence"]
+    created_at [name: "ix_notifications_push_outbox"]
+    (user_id, created_at) [name: "ix_notifications_user_feed"]
+    user_id [name: "ix_notifications_user_unread"]
+  }
+}
+
+Table "exchange_rates" {
+  "id" bigint [pk, not null, increment]
+  "currency" char(3) [not null]
+  "rate_date" date [not null]
+  "rate" numeric(18,6) [not null]
+  "source" varchar(8) [not null]
+  "created_by" bigint
+  "fetched_at" timestamptz [not null, default: `now()`]
+  "change_xid" xid8 [not null, default: `pg_current_xact_id()`]
+
+  Indexes {
+    (currency, rate_date, source) [unique, name: "ux_exchange_rates_day"]
+    change_xid [name: "ix_exchange_rates_change"]
+  }
+}
+
+Table "tax_parameters" {
+  "id" bigint [pk, not null, increment]
+  "valid_from" date [unique, not null]
+  "threshold_usd" numeric(12,2) [not null]
+  "rate_up_to_threshold" numeric(5,4) [not null]
+  "rate_above_threshold" numeric(5,4) [not null]
+  "deduction_usd" numeric(12,2) [not null, default: 0]
+  "icms_rate" numeric(5,4) [not null]
+  "created_by" bigint [not null]
+  "change_xid" xid8 [not null, default: `pg_current_xact_id()`]
+  "created_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    change_xid [name: "ix_tax_parameters_change"]
+  }
+}
+
+Table "integration_runs" {
+  "id" bigint [pk, not null, increment]
+  "integration" varchar(16) [unique, not null]
+  "source" varchar(24) [not null]
+  "status" varchar(8) [not null, default: 'RUNNING']
+  "started_at" timestamptz [not null, default: `now()`]
+  "finished_at" timestamptz
+  "items_checked" integer [not null, default: 0]
+  "items_imported" integer [not null, default: 0]
+  "failures" integer [not null, default: 0]
+  "error_summary" varchar(255)
+
+  Indexes {
+    (integration, started_at) [name: "ix_integration_runs_recent"]
+  }
+}
+
+Ref "devices_user_id_fkey":"users"."id" < "devices"."user_id" [delete: cascade]
+
+Ref "exchange_rates_created_by_fkey":"users"."id" < "exchange_rates"."created_by"
+
+Ref "exchange_rates_currency_fkey":"currencies"."code" < "exchange_rates"."currency"
+
+Ref "notification_occurrences_purchase_id_fkey":"purchases"."id" < "notification_occurrences"."purchase_id" [delete: cascade]
+
+Ref "fk_notifications_occurrence":"notification_occurrences".("occurrence_key", "purchase_id", "reason") < "notifications".("occurrence_key", "purchase_id", "reason") [delete: cascade]
+
+Ref "fk_notifications_purchase":"purchases".("id", "user_id") < "notifications".("purchase_id", "user_id") [delete: cascade]
+
+Ref "fk_offers_group":"product_groups".("id", "user_id") < "offers".("product_group_id", "user_id")
+
+Ref "fk_offers_purchase":"purchases".("id", "user_id") < "offers".("purchase_id", "user_id") [delete: set null]
+
+Ref "fk_offers_store":"stores".("id", "user_id") < "offers".("store_id", "user_id")
+
+Ref "offers_currency_fkey":"currencies"."code" < "offers"."currency"
+
+Ref "offers_user_id_fkey":"users"."id" < "offers"."user_id" [delete: cascade]
+
+Ref "product_groups_user_id_fkey":"users"."id" < "product_groups"."user_id" [delete: cascade]
+
+Ref "fk_purchases_store":"stores".("id", "user_id") < "purchases".("store_id", "user_id")
+
+Ref "purchases_currency_fkey":"currencies"."code" < "purchases"."currency"
+
+Ref "purchases_user_id_fkey":"users"."id" < "purchases"."user_id" [delete: cascade]
+
+Ref "refresh_tokens_replaced_by_fkey":"refresh_tokens"."id" < "refresh_tokens"."replaced_by" [delete: set null]
+
+Ref "refresh_tokens_user_id_fkey":"users"."id" < "refresh_tokens"."user_id" [delete: cascade]
+
+Ref "stores_user_id_fkey":"users"."id" < "stores"."user_id" [delete: cascade]
+
+Ref "tax_parameters_created_by_fkey":"users"."id" < "tax_parameters"."created_by"
+
+Ref "tracking_events_purchase_id_fkey":"purchases"."id" < "tracking_events"."purchase_id" [delete: cascade]
+
+Ref "users_blocked_by_fkey":"users"."id" < "users"."blocked_by" [delete: set null]
