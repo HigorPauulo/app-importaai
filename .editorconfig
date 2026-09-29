@@ -1,0 +1,23 @@
+# Mesma formatação em qualquer editor da equipe
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.{java,kt,xml,gradle}]
+indent_size = 4
+
+[*.sql]
+indent_size = 4
+
+[*.md]
+# Dois espaços no fim da linha são quebra de linha no Markdown
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab
