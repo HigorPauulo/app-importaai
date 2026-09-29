@@ -16,6 +16,7 @@ Registro do uso de ferramentas de IA, conforme a §9.1 do Norteador. Mantido ao 
 | Semanas 6 a 9 | Modelagem de dados, arquitetura e levantamento de alternativas | Modelo de dados, arquitetura, ADRs | Decisões aprovadas pela equipe |
 | Semana 9 | Construção das telas do protótipo a partir do design system | Protótipo, usabilidade | Revisão visual tela a tela |
 | Semana 9 | Redação dos casos de teste e da rastreabilidade | Plano de testes, rastreabilidade | Casos conferidos contra os requisitos |
+| Semana 9 | Proposta das regras de versionamento, do CI e da configuração do assistente | `CONTRIBUTING.md`, `CLAUDE.md`, `.github/`, `.claude/` | Regras revisadas e aprovadas pela equipe no PR |
 | a partir do Ciclo 1 | Apoio à codificação | `app/`, `api/` | a registrar por ciclo |
 
 ## Responsabilidade
