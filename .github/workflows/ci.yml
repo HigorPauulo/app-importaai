@@ -1,0 +1,105 @@
+# Gate de todo PR e de toda integração em develop e main.
+# Nenhum segredo real entra aqui: o banco dos testes é efêmero (Testcontainers).
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  commits:
+    name: Mensagens de commit
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Conventional Commits em PT-BR, até 72 caracteres
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^(feat|fix|docs|test|refactor|style|perf|chore|revert)(\([a-z0-9-]+\))?!?: [^ ].{0,70}[^.]$'
+          fail=0
+          check() {
+            if [ "${#1}" -gt 72 ] || ! printf '%s' "$1" | grep -qE "$pattern"; then
+              echo "::error::Fora do padrão: $1"
+              fail=1
+            fi
+          }
+          # O PR de entrega (develop -> main) traz merges; eles não são checados
+          while IFS= read -r subject; do
+            check "$subject"
+          done < <(git log --no-merges --format=%s "$BASE..$HEAD")
+          check "$TITLE"
+          if grep -rqiE 'co-authored-by: .*(claude|anthropic|copilot|gpt)' <(git log --format=%B "$BASE..$HEAD"); then
+            echo "::error::Atribuição de IA em commit. Declare o uso em docs/06-entregas/declaracao-ia.md"
+            fail=1
+          fi
+          exit $fail
+
+  detect:
+    name: Partes presentes
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.parts.outputs.api }}
+      app: ${{ steps.parts.outputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: parts
+        # A API e o app nascem no Ciclo 1 (H-01, H-02); até lá, seus jobs são pulados
+        run: |
+          echo "api=$([ -f api/pom.xml ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "app=$([ -f app/package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  api:
+    name: API (Java 21)
+    needs: detect
+    if: needs.detect.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Build, testes unitários e de integração
+        run: ./mvnw -B -ntp verify
+
+  app:
+    name: App (Expo)
+    needs: detect
+    if: needs.detect.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - name: Lint
+        run: npm run lint -- --max-warnings=0
+      - name: Tipos
+        run: npx tsc --noEmit
+      - name: Testes
+        run: npm test -- --ci

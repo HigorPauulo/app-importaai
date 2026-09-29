@@ -1,0 +1,19 @@
+# Pede a revisão automaticamente a quem conhece a OUTRA ponta do contrato
+# (revisão cruzada do CONTRIBUTING.md). Não é o dono da pasta: é o revisor dela.
+# A última regra que casa com o arquivo vence.
+
+*                       @HigorPauulo @Dioogooa
+
+# API é revisada pelo frontend; app é revisado pelo backend
+/api/                   @Dioogooa
+/app/                   @HigorPauulo
+
+# Contrato e protocolo afetam as duas pontas
+/docs/02-arquitetura/api.md            @HigorPauulo @Dioogooa
+/docs/02-arquitetura/sincronizacao.md  @HigorPauulo @Dioogooa
+
+# Regras do repositório e do assistente: qualquer um dos dois aprova.
+# Com um dono só, o PR dele nessas pastas nunca teria revisor que não fosse ele mesmo.
+/.github/               @HigorPauulo @Dioogooa
+/.claude/               @HigorPauulo @Dioogooa
+/CLAUDE.md              @HigorPauulo @Dioogooa

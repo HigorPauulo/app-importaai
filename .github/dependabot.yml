@@ -1,0 +1,13 @@
+# Atualizações semanais em PR, no padrão de commit do projeto.
+# Os blocos de maven (/api) e npm (/app) entram junto com H-02 e H-01:
+# o Dependabot falha se a pasta ainda não existe.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "chore(ci)"
+    labels: ["dependencias"]
