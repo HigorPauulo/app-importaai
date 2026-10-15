@@ -29,7 +29,7 @@ function TableFrame({ isScrollable, children }: { isScrollable: boolean; childre
 
 // T12 · Comparação (RF-06).
 export function ComparisonScreen({ groupId, onBack, onBuy, onOpenPurchase }: ComparisonScreenProps) {
-  const { state } = useOffers();
+  const { state, reload } = useOffers();
   const group =
     state.status === 'ready'
       ? groupOffers(
@@ -69,7 +69,15 @@ export function ComparisonScreen({ groupId, onBack, onBuy, onOpenPurchase }: Com
     return (
       <SafeAreaView style={styles.safeArea}>
         {header}
-        {state.status !== 'loading' && (
+        {state.status === 'error' && (
+          <EmptyState
+            icon="alert"
+            title="Não foi possível carregar"
+            description="Os dados salvos no aparelho continuam aqui. Tente de novo em instantes."
+            action={<Button label="Tentar de novo" variant="secondary" onPress={reload} style={styles.stretch} />}
+          />
+        )}
+        {state.status === 'ready' && (
           <EmptyState
             icon="scale"
             title="Não há o que comparar"
@@ -155,6 +163,7 @@ export function ComparisonScreen({ groupId, onBack, onBuy, onOpenPurchase }: Com
 }
 
 const styles = StyleSheet.create({
+  stretch: { alignSelf: 'stretch' },
   safeArea: { flex: 1, backgroundColor: colors.surfaceWhite },
   header: { backgroundColor: colors.surfaceWhite, borderBottomWidth: 1, borderBottomColor: colors.borderDefault },
   verdict: { gap: 6, paddingTop: 4, paddingHorizontal: 20, paddingBottom: 20 },

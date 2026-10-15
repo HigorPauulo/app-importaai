@@ -1,5 +1,5 @@
 import { useSQLiteContext, type SQLiteDatabase } from 'expo-sqlite';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -109,12 +109,18 @@ export function OfferScreen({ offerId, groupId, onBack, onSaved, onConvert, onOp
   const [saveFailed, setSaveFailed] = useState(false);
   const [busy, setBusy] = useState<'save' | 'convert' | null>(null);
 
+  const load = useCallback(
+    () =>
+      loadOffer(db, offerId, groupId).then((loaded) => {
+        setState(loaded);
+        if (loaded.status === 'ready') setDraft(initialDraft(loaded.offer, loaded.currencies));
+      }),
+    [db, offerId, groupId],
+  );
+
   useEffect(() => {
-    loadOffer(db, offerId, groupId).then((loaded) => {
-      setState(loaded);
-      if (loaded.status === 'ready') setDraft(initialDraft(loaded.offer, loaded.currencies));
-    });
-  }, [db, offerId, groupId]);
+    load();
+  }, [load]);
 
   if (state.status !== 'ready' || !draft) {
     return (
@@ -131,6 +137,7 @@ export function OfferScreen({ offerId, groupId, onBack, onSaved, onConvert, onOp
                 ? 'Ela pode ter sido excluída neste ou em outro aparelho.'
                 : 'Os dados salvos no aparelho continuam aqui. Tente de novo em instantes.'
             }
+            action={state.status === 'error' && <Button label="Tentar de novo" variant="secondary" onPress={load} style={styles.stretch} />}
           />
         )}
       </SafeAreaView>
@@ -369,6 +376,7 @@ export function OfferScreen({ offerId, groupId, onBack, onSaved, onConvert, onOp
 }
 
 const styles = StyleSheet.create({
+  stretch: { alignSelf: 'stretch' },
   safeArea: { flex: 1, backgroundColor: colors.surfaceWhite },
   header: { backgroundColor: colors.surfaceWhite, borderBottomWidth: 1, borderBottomColor: colors.borderDefault },
   summary: { gap: 4, paddingHorizontal: 20, paddingBottom: 20 },
