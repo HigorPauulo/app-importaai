@@ -18,7 +18,10 @@ async function post(path: string, body: object): Promise<ApiError | null | 'OFFL
     return 'OFFLINE';
   }
   if (response.ok) return null;
-  return response.json().catch(() => ({}));
+  // Corpo vazio, "null" ou fora do formato vira erro sem código, e não exceção: senão o botão
+  // ficaria carregando para sempre.
+  const errorBody: unknown = await response.json().catch(() => null);
+  return typeof errorBody === 'object' && errorBody !== null ? errorBody : {};
 }
 
 // POST /auth/login (api.md, RF-02).
