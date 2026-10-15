@@ -4,6 +4,7 @@ import type { ExchangeRate } from '@/features/referencia/domain/currencyConverte
 import { uuidV7 } from '@/shared/db/uuid';
 
 import type { PurchaseDetail, TrackingEvent } from '../domain/purchaseDetail';
+import type { PurchaseValues } from '../domain/purchaseForm';
 import { withoutResolvedFlags, type PurchaseFlag, type PurchaseStatus } from '../domain/purchaseList';
 
 type PurchaseRow = Omit<PurchaseDetail, 'flags'> & { flags: string };
@@ -86,3 +87,61 @@ export const registerTaxPayment = (db: SQLiteDatabase, id: string, paidOn: strin
 
 export const confirmReceipt = (db: SQLiteDatabase, id: string, receivedOn: string) => changePurchase(db, id, { received_at: receivedOn });
 
+// Código único por usuário (RF-08): a tela oferece abrir a compra que já usa o código (CT-15).
+export async function findPurchaseIdByTrackingCode(db: SQLiteDatabase, trackingCode: string): Promise<string | null> {
+  const row = await db.getFirstAsync<{ id: string }>(
+    'select id from purchases where tracking_code = ? and deleted_at is null',
+    trackingCode,
+  );
+  return row?.id ?? null;
+}
+
+// Nasce no aparelho: row_version 0 ("nunca aceito pelo servidor") e PENDING até a sincronização.
+export async function createPurchase(db: SQLiteDatabase, values: PurchaseValues): Promise<string> {
+  const id = uuidV7();
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `insert into purchases (id, store_id, product_description, tracking_code, purchase_date, promised_date,
+                            amount_minor, shipping_minor, currency, tax_minor, tax_due_date,
+                            sync_state, mutation_id, created_at, updated_at)
+     values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?, ?, ?)`,
+    id,
+    values.storeId,
+    values.productDescription,
+    values.trackingCode,
+    values.purchaseDate,
+    values.promisedDate,
+    values.amountMinor,
+    values.shippingMinor,
+    values.currency,
+    values.taxMinor,
+    values.taxDueDate,
+    uuidV7(),
+    now,
+    now,
+  );
+  return id;
+}
+
+export async function updatePurchase(db: SQLiteDatabase, id: string, values: PurchaseValues): Promise<void> {
+  await db.runAsync(
+    `update purchases
+        set store_id = ?, product_description = ?, tracking_code = ?, purchase_date = ?, promised_date = ?,
+            amount_minor = ?, shipping_minor = ?, currency = ?, tax_minor = ?, tax_due_date = ?,
+            sync_state = 'PENDING', mutation_id = ?, updated_at = ?
+      where id = ?`,
+    values.storeId,
+    values.productDescription,
+    values.trackingCode,
+    values.purchaseDate,
+    values.promisedDate,
+    values.amountMinor,
+    values.shippingMinor,
+    values.currency,
+    values.taxMinor,
+    values.taxDueDate,
+    uuidV7(),
+    new Date().toISOString(),
+    id,
+  );
+}
