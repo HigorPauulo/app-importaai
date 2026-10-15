@@ -73,12 +73,12 @@ flowchart LR
 O domínio declara interfaces e a camada de dados as implementa, o que permite testar as regras sem aparelho, banco ou rede.
 
 ```
-app/                      rotas do Expo Router
-  (auth)/                 entrar, criar conta
-  (comprador)/(abas)/     compras, ofertas, painel, alertas
-  (comprador)/            detalhe da compra, oferta, comparação, perfil, lojas
-  (admin)/(abas)/         contas, câmbio, integração
 src/
+  app/                    rotas do Expo Router
+    (auth)/               entrar, criar conta
+    (comprador)/(abas)/   compras, ofertas, painel, alertas
+    (comprador)/          detalhe da compra, oferta, comparação, perfil, lojas
+    (admin)/(abas)/       contas, câmbio, integração
   features/<modulo>/      ui/ · domain/ · data/     (acesso, compras, ofertas, rastreio, alertas, admin)
   shared/                 db/ · api/ · sync/ · ui/
 ```
