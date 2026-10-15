@@ -1,5 +1,5 @@
 import { convertToBrl, formatMoney, type ExchangeRate } from '@/features/referencia/domain/currencyConverter';
-import { daysBetween } from '@/shared/date';
+import { daysBetween, toLocalDate } from '@/shared/date';
 import { plural } from '@/shared/text';
 
 import type { PurchaseDetail } from './purchaseDetail';
@@ -30,7 +30,7 @@ export function monthStart(today: string, monthsBack: number): string {
 const PERIOD_MONTHS: Record<DashboardPeriod, number> = { MONTH: 0, QUARTER: 2, YEAR: 11 };
 
 // Data em que a compra se concluiu: a confirmação manual vale sobre o último evento (RN01).
-const concludedOn = (purchase: PurchaseDetail) => (purchase.receivedAt ?? purchase.lastEventAt ?? purchase.promisedDate).slice(0, 10);
+const concludedOn = (purchase: PurchaseDetail) => toLocalDate(purchase.receivedAt ?? purchase.lastEventAt ?? purchase.promisedDate);
 
 // Valor pago (produto e frete) em reais pela cotação da data da compra (RN07); null sem cotação.
 function paidInBrl(purchase: PurchaseDetail, rates: readonly ExchangeRate[]): number | null {

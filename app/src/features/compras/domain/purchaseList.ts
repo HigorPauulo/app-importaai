@@ -1,4 +1,4 @@
-import { daysBetween, formatDayMonth } from '@/shared/date';
+import { daysBetween, formatDayMonth, toLocalDate } from '@/shared/date';
 import { plural } from '@/shared/text';
 
 // Situação e sinalizações chegam prontas da API (RN01 a RN05 têm dono no servidor, ADR-004);
@@ -76,7 +76,7 @@ export function filterPurchases(purchases: readonly PurchaseListItem[], filter: 
 }
 
 // Data em que a compra se concluiu: a confirmação manual vale sobre o último evento (RN01).
-const concludedOn = (purchase: PurchaseListItem) => purchase.receivedAt ?? purchase.lastEventAt ?? purchase.promisedDate;
+const concludedOn = (purchase: PurchaseListItem) => toLocalDate(purchase.receivedAt ?? purchase.lastEventAt ?? purchase.promisedDate);
 
 // Lista agrupada por prioridade (T03). Dentro do grupo, o prazo mais próximo primeiro (CT-29);
 // nas concluídas, a mais recente primeiro. Grupo vazio não aparece.
