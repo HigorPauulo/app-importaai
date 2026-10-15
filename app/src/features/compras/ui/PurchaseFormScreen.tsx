@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, View, type TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { getOffer, linkOfferToPurchase } from '@/features/ofertas/data/offerRepository';
 import { listActiveCurrencies, listAllExchangeRates, type Currency } from '@/features/referencia/data/currencyRepository';
 import { convertToBrl, formatMoney, type ExchangeRate } from '@/features/referencia/domain/currencyConverter';
 import { formatDayMonth, toIsoDate } from '@/shared/date';
@@ -38,6 +39,8 @@ import { StoreSheet } from './StoreSheet';
 type PurchaseFormScreenProps = {
   // Sem id, cadastra; com id, altera (RF-08, RF-10).
   purchaseId?: string;
+  // Converter oferta em compra (RF-07): o formulário chega preenchido com os dados dela.
+  offerId?: string;
   onBack: () => void;
   onSaved: (id: string) => void;
   onOpenPurchase: (id: string) => void;
@@ -54,6 +57,7 @@ type LoadState =
       rates: ExchangeRate[];
       draft: PurchaseDraft;
       isLocked: boolean;
+      offerStoreName: string | null;
     };
 
 const DUPLICATE_CODE = 'Você já cadastrou este código. Abrir compra existente';
@@ -74,13 +78,14 @@ function emptyDraft(today: string, currencies: Currency[]): PurchaseDraft {
   };
 }
 
-async function loadFormState(db: SQLiteDatabase, purchaseId: string | undefined, today: string): Promise<LoadState> {
+async function loadFormState(db: SQLiteDatabase, purchaseId: string | undefined, offerId: string | undefined, today: string): Promise<LoadState> {
   try {
-    const [stores, currencies, rates, purchase] = await Promise.all([
+    const [stores, currencies, rates, purchase, offer] = await Promise.all([
       listStores(db),
       listActiveCurrencies(db),
       listAllExchangeRates(db),
       purchaseId ? getPurchase(db, purchaseId) : Promise.resolve(null),
+      offerId ? getOffer(db, offerId) : Promise.resolve(null),
     ]);
     if (purchaseId && !purchase) return { status: 'missing' };
 
@@ -98,7 +103,16 @@ async function loadFormState(db: SQLiteDatabase, purchaseId: string | undefined,
           taxAmount: purchase.taxMinor === null ? '' : formatMoneyInput(purchase.taxMinor, 2),
           taxDueDate: purchase.taxDueDate ? formatDateInput(purchase.taxDueDate) : '',
         }
-      : emptyDraft(today, currencies);
+      : offer
+        ? {
+            ...emptyDraft(today, currencies),
+            productDescription: offer.groupName,
+            storeId: offer.storeId,
+            currency: offer.currency,
+            amount: formatMoneyInput(offer.priceMinor, offer.minorUnits),
+            shipping: formatMoneyInput(offer.shippingMinor, offer.minorUnits),
+          }
+        : emptyDraft(today, currencies);
     return {
       status: 'ready',
       stores,
@@ -106,6 +120,7 @@ async function loadFormState(db: SQLiteDatabase, purchaseId: string | undefined,
       rates,
       draft,
       isLocked: purchase ? isConcluded(purchase.status) : false,
+      offerStoreName: offer?.storeName ?? null,
     };
   } catch {
     return { status: 'error' };
@@ -113,22 +128,22 @@ async function loadFormState(db: SQLiteDatabase, purchaseId: string | undefined,
 }
 
 // Carrega uma vez: recarregar ao ganhar foco apagaria o que a pessoa já digitou.
-function usePurchaseForm(purchaseId: string | undefined, today: string) {
+function usePurchaseForm(purchaseId: string | undefined, offerId: string | undefined, today: string) {
   const db = useSQLiteContext();
   const [state, setState] = useState<LoadState>({ status: 'loading' });
-  const reload = useCallback(() => loadFormState(db, purchaseId, today).then(setState), [db, purchaseId, today]);
+  const reload = useCallback(() => loadFormState(db, purchaseId, offerId, today).then(setState), [db, purchaseId, offerId, today]);
 
   useEffect(() => {
-    loadFormState(db, purchaseId, today).then(setState);
-  }, [db, purchaseId, today]);
+    loadFormState(db, purchaseId, offerId, today).then(setState);
+  }, [db, purchaseId, offerId, today]);
 
   return { db, state, setState, reload };
 }
 
 // T05 · Formulário de compra (RF-08, RF-10, RF-16).
-export function PurchaseFormScreen({ purchaseId, onBack, onSaved, onOpenPurchase }: PurchaseFormScreenProps) {
+export function PurchaseFormScreen({ purchaseId, offerId, onBack, onSaved, onOpenPurchase }: PurchaseFormScreenProps) {
   const today = toIsoDate(new Date());
-  const { db, state, setState, reload } = usePurchaseForm(purchaseId, today);
+  const { db, state, setState, reload } = usePurchaseForm(purchaseId, offerId, today);
   const [errors, setErrors] = useState<PurchaseDraftErrors>({});
   const [duplicateId, setDuplicateId] = useState<string | null>(null);
   const [saveFailed, setSaveFailed] = useState(false);
@@ -159,7 +174,7 @@ export function PurchaseFormScreen({ purchaseId, onBack, onSaved, onOpenPurchase
     );
   }
 
-  const { stores, currencies, rates, draft, isLocked } = state;
+  const { stores, currencies, rates, draft, isLocked, offerStoreName } = state;
   const minorUnits = currencies.find((currency) => currency.code === draft.currency)?.minorUnits ?? 2;
   const isFieldLocked = (field: keyof PurchaseDraft) => isLocked && PROTECTED_FIELDS.includes(field);
 
@@ -213,7 +228,9 @@ export function PurchaseFormScreen({ purchaseId, onBack, onSaved, onOpenPurchase
         await updatePurchase(db, purchaseId, values);
         onSaved(purchaseId);
       } else {
-        onSaved(await createPurchase(db, values));
+        const id = await createPurchase(db, values);
+        if (offerId) await linkOfferToPurchase(db, offerId, id);
+        onSaved(id);
       }
     } catch {
       setSaveFailed(true);
@@ -229,6 +246,13 @@ export function PurchaseFormScreen({ purchaseId, onBack, onSaved, onOpenPurchase
       </View>
       <KeyboardAvoidingView behavior="padding" style={styles.fill}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          {offerStoreName && (
+            <InfoBox icon="tag">
+              <Text variant="caption13" color="primaryDark">
+                Dados trazidos da sua oferta na {offerStoreName}. Confira e complete.
+              </Text>
+            </InfoBox>
+          )}
           {isLocked && (
             <InfoBox icon="lock">
               <Text variant="caption13" color="primaryDark">
