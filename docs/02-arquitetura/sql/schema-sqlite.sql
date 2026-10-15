@@ -14,7 +14,8 @@
 --   * Tabelas editáveis no aparelho têm os campos de sincronização:
 --       row_version  versão do servidor que esta cópia conhece (0 = nunca enviada)
 --       sync_state   SYNCED, PENDING (a enviar) ou REJECTED (recusada, com motivo)
---       mutation_id  identificador da alteração pendente, reenviado igual até ser aceito
+--       mutation_id  identificador da alteração pendente; nasce ao virar PENDING e só
+--                    muda depois que o servidor responde (ADR-011)
 --       conflict_snapshot  versão do servidor recebida num conflito, até o usuário escolher
 
 create table currencies (

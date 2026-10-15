@@ -1,6 +1,6 @@
 # Plano de testes
 
-Como o sistema é verificado: níveis de teste, dados de referência e os 61 casos que cobrem todos os requisitos funcionais e regras de negócio.
+Como o sistema é verificado: níveis de teste, dados de referência e os 66 casos que cobrem todos os requisitos funcionais e regras de negócio.
 
 ---
 
@@ -130,5 +130,10 @@ Como o sistema é verificado: níveis de teste, dados de referência e os 61 cas
 | CT-59 | RF-12, RF-20 | Loja excluída em A; B, sem rede, cria compra nela e depois sincroniza | Compra `DEPENDENCY_REJECTED` no campo da loja; o pull conclui e o cursor avança; a loja some da lista de B; escolhida outra loja, a compra é aceita | A | |
 | CT-60 | RF-03, RF-21 | Sair com `pushToken`; bloquear outra conta; gerar alerta para as duas | Aparelhos removidos; os alertas ficam na aba, sem push enviado | A | |
 | CT-61 | RF-03, RN04 | Com taxa registrada, sair da conta em modo avião e depois reconectar | Nenhum lembrete de taxa dispara; ao reconectar, a saída chega à API e o aparelho não recebe push da conta | M | |
+| CT-62 | RF-20 | Duas conexões: T1 altera uma loja sem comitar; pull; T1 comita; novo pull | O segundo pull traz a loja | A | |
+| CT-63 | RF-20 | Criar compra sem rede; envio aplicado com a resposta perdida; editar a compra; sincronizar | `accepted`; o servidor fica com a edição; nenhum `SYNC_CONFLICT` | A | |
+| CT-64 | RF-08, RF-20 | Sem rede, excluir a compra de código C e criar outra com C; sincronizar | Os dois itens `accepted`; uma única compra ativa com C | A | |
+| CT-65 | RF-20 | Pull com cursor de outra época ou com `xid` acima do banco | Retrato completo com `reset: true`; pendentes mantidos | A | |
+| CT-66 | RF-12, RF-20 | Excluir a loja e criar compra nela em transações simultâneas | Uma das duas é recusada (`STORE_IN_USE` ou `DEPENDENCY_REJECTED`); nunca compra ativa em loja excluída | A | |
 
-**Total:** 61 casos · 33 automatizados · 28 manuais.
+**Total:** 66 casos · 38 automatizados · 28 manuais.

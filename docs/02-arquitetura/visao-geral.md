@@ -142,9 +142,9 @@ sequenceDiagram
     Note over App: rede volta, app abre ou usuário puxa a lista
     App->>API: POST /sync/push (lote de alterações)
     API-->>App: resultado por item: aceito ou recusado com código
-    App->>API: GET /sync/pull?since=última sincronização
+    App->>API: GET /sync/pull?cursor=último cursor
     API-->>App: o que mudou: lojas, ofertas, compras, eventos, situações, alertas, cotações, parâmetros
-    App->>App: aplica no SQLite e guarda o novo instante
+    App->>App: aplica no SQLite e guarda o novo cursor
 ```
 
 | Aspecto | Decisão |
@@ -152,15 +152,15 @@ sequenceDiagram
 | Quando | Ao abrir o app, ao recuperar a rede, ao puxar a lista, depois de salvar e a cada 15 min com o app aberto |
 | Ordem | Envia antes de receber |
 | Identidade | Registros criados no aparelho têm UUID v7 |
-| Reenvio | Cada alteração leva `mutationId`; repetir não duplica |
+| Reenvio | Cada alteração leva `mutationId`, mantido até a resposta; repetir não duplica nem gera conflito falso |
 | Cursor | Identificador de transação do PostgreSQL, não horário: nenhuma alteração escapa |
 | Conflito | Trava otimista por `row_version`; edição simultânea em dois aparelhos volta como conflito e o usuário escolhe |
-| Exclusão | Marca `deleted_at`; aparelho parado há mais de 30 dias recebe retrato completo |
+| Exclusão | Marca `deleted_at`; aparelho parado há mais de 30 dias, ou com cursor de um banco restaurado, recebe retrato completo |
 | Recusa | Item recusado fica marcado no aparelho, com a mensagem ao lado do registro |
 | Falha de rede | Nada é apagado; tenta de novo com espera crescente |
 | Tempo limite | 10 s para a API; 8 s para serviços externos |
 
-Protocolo completo em [sincronização](sincronizacao.md); decisões no [ADR-003](decisoes/adr-003-persistencia-local-e-sincronizacao.md) e no [ADR-008](decisoes/adr-008-protocolo-de-sincronizacao.md).
+Protocolo completo em [sincronização](sincronizacao.md); decisões no [ADR-003](decisoes/adr-003-persistencia-local-e-sincronizacao.md), no [ADR-008](decisoes/adr-008-protocolo-de-sincronizacao.md) e no [ADR-011](decisoes/adr-011-ajustes-da-sincronizacao.md).
 
 ---
 

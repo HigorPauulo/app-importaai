@@ -27,7 +27,7 @@ Liga cada requisito à regra que o governa, aos dados que usa, às telas que o m
 | RF-17 | RN06, RN11 | notification_occurrences, notifications | T08 | CT-35, CT-36, CT-56 | 3 | |
 | RF-18 | RN01, RN07 | purchases, exchange_rates | T06 | CT-37, CT-38 | 4 | |
 | RF-19 | RN02 | purchases, stores | T06 | CT-39 | 4 | |
-| RF-20 | · | base local, colunas de sincronização | T03, T04, T10 | CT-40 a CT-42, CT-48 a CT-52, CT-57, CT-59 | 3 | |
+| RF-20 | · | base local, colunas de sincronização | T03, T04, T10 | CT-40 a CT-42, CT-48 a CT-52, CT-57, CT-59, CT-62 a CT-66 | 3 | |
 | RF-21 | RN08 | users, refresh_tokens, devices | T13 | CT-43, CT-44, CT-54, CT-60 | 4 | |
 | RF-22 | RN07, RN10 | exchange_rates, tax_parameters | T14 | CT-45, CT-46 | 4 | |
 | RF-23 | RN03 | integration_runs, purchases | T15 | CT-47, CT-58 | 4 | |
