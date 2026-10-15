@@ -1,4 +1,5 @@
 import type { SignIn, SignInFailure } from '../domain/signIn';
+import type { SignUp, SignUpFailure } from '../domain/signUp';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -28,9 +29,21 @@ export const signIn: SignIn = async ({ email, password }) => {
   return toSignInFailure(error);
 };
 
+// POST /auth/register (api.md, RF-01).
+export const signUp: SignUp = async ({ name, email, password }) => {
+  const error = await post('/auth/register', { name: name.trim(), email: email.trim(), password });
+  if (error === null) return null;
+  if (error === 'OFFLINE') return { code: 'OFFLINE' };
+  return toSignUpFailure(error);
+};
+
 function toSignInFailure({ code, retryAfterSeconds }: ApiError): SignInFailure {
   if (code === 'INVALID_CREDENTIALS' || code === 'ACCOUNT_BLOCKED') return { code };
   // Sem o campo, vale o prazo inteiro do bloqueio de RF-02 (15 minutos).
   if (code === 'ACCOUNT_LOCKED') return { code, retryAfterSeconds: retryAfterSeconds ?? 900 };
   return { code: 'UNAVAILABLE' };
+}
+
+function toSignUpFailure({ code }: ApiError): SignUpFailure {
+  return code === 'EMAIL_TAKEN' ? { code } : { code: 'UNAVAILABLE' };
 }

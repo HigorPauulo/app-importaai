@@ -4,6 +4,7 @@ export { Chip } from './Chip';
 export { EmptyState, type EmptyStateProps } from './EmptyState';
 export { Header } from './Header';
 export { Icon } from './Icon';
+export { IconButton } from './IconButton';
 export type { IconName } from './icons';
 export { OfflineBanner } from './OfflineBanner';
 export { PasswordField } from './PasswordField';
