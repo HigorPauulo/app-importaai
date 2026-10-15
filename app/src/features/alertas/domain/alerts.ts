@@ -1,5 +1,6 @@
 import { formatMoney } from '@/features/referencia/domain/currencyConverter';
-import { daysBetween, formatDayMonth, toIsoDate } from '@/shared/date';
+import { daysBetween, formatDayMonth, formatTime, toIsoDate } from '@/shared/date';
+import { plural } from '@/shared/text';
 
 // Motivos de alerta da API (modelo-de-dominio.md, NotificationReason).
 export type AlertReason = 'TAX_DETECTED' | 'TAX_DUE' | 'TAX_OVERDUE' | 'DELAYED' | 'STALLED' | 'CLAIM_WINDOW';
@@ -36,8 +37,6 @@ const ACTIONS: Record<AlertReason, AlertAction> = {
   STALLED: 'SEE_TRACKING',
   CLAIM_WINDOW: 'HOW_TO_CLAIM',
 };
-
-const plural = (count: number, singular: string, pluralForm: string) => `${count} ${count === 1 ? singular : pluralForm}`;
 
 // Título do alerta: o que aconteceu, com o produto e o número que importa. O texto que a API manda
 // (message) vem embaixo, com a consequência.
@@ -76,17 +75,15 @@ export function alertAction(alert: AlertItem): AlertAction | null {
   return ACTIONS[alert.reason];
 }
 
-const time = (date: Date) => `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-
 // "Há 10 minutos", "Hoje, 08:00", "Ontem, 08:00" ou "10/10, 08:00", no fuso do aparelho.
 export function describeAlertTime(createdAt: string, now: Date): string {
   const moment = new Date(createdAt);
   const minutes = Math.floor((now.getTime() - moment.getTime()) / 60_000);
   if (minutes >= 0 && minutes < 60) return minutes <= 1 ? 'Agora' : `Há ${minutes} minutos`;
   const days = daysBetween(toIsoDate(moment), toIsoDate(now));
-  if (days === 0) return `Hoje, ${time(moment)}`;
-  if (days === 1) return `Ontem, ${time(moment)}`;
-  return `${formatDayMonth(toIsoDate(moment))}, ${time(moment)}`;
+  if (days === 0) return `Hoje, ${formatTime(moment)}`;
+  if (days === 1) return `Ontem, ${formatTime(moment)}`;
+  return `${formatDayMonth(toIsoDate(moment))}, ${formatTime(moment)}`;
 }
 
 // Alertas por dia, do mais recente para o mais antigo (T08).

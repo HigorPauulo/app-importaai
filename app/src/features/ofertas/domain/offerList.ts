@@ -1,5 +1,5 @@
 import { formatMoney, type ExchangeRate } from '@/features/referencia/domain/currencyConverter';
-import { formatDayMonth, toIsoDate } from '@/shared/date';
+import { formatDayMonth, formatTime, toIsoDate } from '@/shared/date';
 
 import type { TaxParameters } from '@/features/referencia/domain/taxParameters';
 
@@ -84,7 +84,7 @@ export function describeEstimateNote(groups: readonly OfferGroup[], now: Date): 
 
   const fetched = new Date(used.rate.fetchedAt);
   const day = toIsoDate(fetched) === toIsoDate(now) ? 'hoje' : formatDayMonth(toIsoDate(fetched));
-  const time = `${String(fetched.getHours()).padStart(2, '0')}:${String(fetched.getMinutes()).padStart(2, '0')}`;
+  const time = formatTime(fetched);
   const isStale = estimates.some((estimate) => estimate.kind === 'estimated' && estimate.isStaleRate);
   return { text: isStale ? `Cotação desatualizada, de ${day}, ${time}` : `Estimativa com a cotação de ${day}, ${time}`, isStale };
 }

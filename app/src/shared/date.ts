@@ -18,10 +18,14 @@ export function formatDayMonth(iso: string): string {
   return `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
 }
 
+// "09:14", no fuso do aparelho.
+export function formatTime(moment: Date): string {
+  return `${String(moment.getHours()).padStart(2, '0')}:${String(moment.getMinutes()).padStart(2, '0')}`;
+}
+
 // Data e hora de um evento no fuso do aparelho: "HOJE · 09:14" ou "10/10 · 18:02".
 export function formatEventTime(occurredAt: string, today: string): string {
   const moment = new Date(occurredAt);
-  const time = `${String(moment.getHours()).padStart(2, '0')}:${String(moment.getMinutes()).padStart(2, '0')}`;
   const day = toIsoDate(moment);
-  return `${day === today ? 'HOJE' : formatDayMonth(day)} · ${time}`;
+  return `${day === today ? 'HOJE' : formatDayMonth(day)} · ${formatTime(moment)}`;
 }

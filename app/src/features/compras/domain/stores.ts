@@ -1,3 +1,5 @@
+import { plural } from '@/shared/text';
+
 export type StoreWithUsage = {
   id: string;
   name: string;
@@ -18,8 +20,6 @@ export const COUNTRIES: readonly { value: string; label: string }[] = [
 ];
 
 const countryName = (code: string | null) => COUNTRIES.find((country) => country.value === code)?.label ?? code;
-
-const plural = (count: number, singular: string, pluralForm: string) => `${count} ${count === 1 ? singular : pluralForm}`;
 
 // "China · 3 compras · 2 ofertas": o que está em zero não aparece.
 export function describeStoreUsage(store: StoreWithUsage): string {

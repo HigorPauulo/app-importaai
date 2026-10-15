@@ -1,5 +1,5 @@
 import { formatMoney } from '@/features/referencia/domain/currencyConverter';
-import { formatDayMonth, toIsoDate } from '@/shared/date';
+import { formatDayMonth, formatTime, toIsoDate } from '@/shared/date';
 import { parseMoney } from '@/shared/money';
 
 import type { CostEstimate } from './costEstimator';
@@ -40,7 +40,7 @@ export function describeSources(estimate: Estimated, currency: string, now: Date
   if (currency === 'BRL' || !rate.fetchedAt) return params;
   const fetched = new Date(rate.fetchedAt);
   const day = toIsoDate(fetched) === toIsoDate(now) ? 'hoje' : `em ${formatDayMonth(toIsoDate(fetched))}`;
-  const time = `${String(fetched.getHours()).padStart(2, '0')}:${String(fetched.getMinutes()).padStart(2, '0')}`;
+  const time = formatTime(fetched);
   return `1 ${currency} = R$ ${rate.rate.replace(/(\.\d\d\d*?)0+$/, '$1').replace('.', ',')} ${day}, ${time} · ${params}`;
 }
 

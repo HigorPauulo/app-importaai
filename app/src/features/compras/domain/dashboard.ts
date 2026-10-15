@@ -1,5 +1,6 @@
 import { convertToBrl, formatMoney, type ExchangeRate } from '@/features/referencia/domain/currencyConverter';
 import { daysBetween } from '@/shared/date';
+import { plural } from '@/shared/text';
 
 import type { PurchaseDetail } from './purchaseDetail';
 import { isConcluded, type PurchaseStatus } from './purchaseList';
@@ -44,8 +45,6 @@ function paidInBrl(purchase: PurchaseDetail, rates: readonly ExchangeRate[]): nu
 }
 
 const sum = (values: readonly number[]) => values.reduce((total, value) => total + value, 0);
-
-const plural = (count: number, singular: string, pluralForm: string) => `${count} ${count === 1 ? singular : pluralForm}`;
 
 export type StorePunctuality = { storeId: string; storeName: string; deliveries: number; averageDelay: number };
 

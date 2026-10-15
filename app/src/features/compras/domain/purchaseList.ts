@@ -1,4 +1,5 @@
 import { daysBetween, formatDayMonth } from '@/shared/date';
+import { plural } from '@/shared/text';
 
 // Situação e sinalizações chegam prontas da API (RN01 a RN05 têm dono no servidor, ADR-004);
 // aqui só se decide como agrupar, filtrar e escrever.
@@ -112,8 +113,6 @@ export function describeDeadline(purchase: PurchaseListItem): string {
   if (purchase.status === 'RETURNED') return `devolvida em ${formatDayMonth(concludedOn(purchase))}`;
   return `prometido para ${formatDayMonth(purchase.promisedDate)}`;
 }
-
-const plural = (count: number, singular: string, pluralForm: string) => `${count} ${count === 1 ? singular : pluralForm}`;
 
 // Rótulo da sinalização com a contagem que ajuda a decidir ("Atrasada 8 dias", CT-30).
 export function describeFlag(flag: PurchaseFlag, purchase: PurchaseListItem, today: string): string {
