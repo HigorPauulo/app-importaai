@@ -14,6 +14,7 @@ export { IconButton } from './IconButton';
 export type { IconName } from './icons';
 export { InfoBox } from './InfoBox';
 export { ListSection } from './ListSection';
+export { Monogram } from './Monogram';
 export { OfflineBanner } from './OfflineBanner';
 export { PasswordField } from './PasswordField';
 export { ProgressRow } from './ProgressRow';
