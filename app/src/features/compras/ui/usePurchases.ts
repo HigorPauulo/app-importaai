@@ -5,12 +5,12 @@ import { useCallback, useState } from 'react';
 import type { ExchangeRate } from '@/features/referencia/domain/currencyConverter';
 
 import { listExchangeRates, listPurchases } from '../data/purchaseRepository';
-import type { PurchaseListItem } from '../domain/purchaseList';
+import type { PurchaseDetail } from '../domain/purchaseDetail';
 
 export type PurchasesState =
   | { status: 'loading' }
   | { status: 'error' }
-  | { status: 'ready'; purchases: PurchaseListItem[]; rates: ExchangeRate[] };
+  | { status: 'ready'; purchases: PurchaseDetail[]; rates: ExchangeRate[] };
 
 // Lista (T03) e painel (T06) leem as mesmas compras do SQLite, de novo a cada vez que a aba
 // ganha foco: a tela nunca espera a rede.

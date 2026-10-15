@@ -1,4 +1,5 @@
 export { ActionSheet, type SheetAction } from './ActionSheet';
+export { BarChart, type Bar } from './BarChart';
 export { BrandMark } from './BrandMark';
 export { Button } from './Button';
 export { Card } from './Card';
@@ -15,10 +16,12 @@ export { InfoBox } from './InfoBox';
 export { ListSection } from './ListSection';
 export { OfflineBanner } from './OfflineBanner';
 export { PasswordField } from './PasswordField';
+export { ProgressRow } from './ProgressRow';
 export { Screen, type ScreenStatus } from './Screen';
 export { SearchField } from './SearchField';
 export { SelectField } from './SelectField';
 export { StackBar } from './StackBar';
+export { StatCard } from './StatCard';
 export { StickyFooter } from './StickyFooter';
 export { TabBar, type Tab } from './TabBar';
 export { Text } from './Text';
