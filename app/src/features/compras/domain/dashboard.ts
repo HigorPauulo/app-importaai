@@ -59,7 +59,7 @@ export type Dashboard = {
 };
 
 // RF-18 e RF-19: os números do painel saem das compras do aparelho, então funcionam sem rede.
-// Arquivar só tira da lista; a compra continua contando no histórico.
+// Arquivar tira a compra do que está a caminho, como na lista, mas ela continua contando no histórico.
 export function buildDashboard(
   purchases: readonly PurchaseDetail[],
   rates: readonly ExchangeRate[],
@@ -69,7 +69,7 @@ export function buildDashboard(
   const start = monthStart(today, PERIOD_MONTHS[period]);
   const phrase = periodOptions(today).find((option) => option.value === period)?.phrase ?? '';
 
-  const open = purchases.filter((purchase) => !isConcluded(purchase.status));
+  const open = purchases.filter((purchase) => !purchase.archivedAt && !isConcluded(purchase.status));
   const openValues = open.map((purchase) => paidInBrl(purchase, rates));
   const withoutRate = openValues.filter((value) => value === null).length;
   const pendingTaxes = open.filter((purchase) => purchase.taxMinor !== null && !purchase.taxPaidAt);

@@ -61,6 +61,12 @@ describe('buildDashboard (RF-18)', () => {
     expect(buildDashboard(purchases, rates, today, 'QUARTER').spent.value).toBe('R$ 700,00');
   });
 
+  it('compra arquivada sai do que está a caminho, como na lista de Compras', () => {
+    const purchases = [purchase({ amountMinor: 10000 }), purchase({ amountMinor: 5000, archivedAt: '2026-10-10T12:00:00Z' })];
+
+    expect(buildDashboard(purchases, rates, today, 'MONTH').inTransit).toEqual({ value: 'R$ 100,00', caption: '1 compra a caminho' });
+  });
+
   it('compras por situação: as abertas e as entregues no período', () => {
     const { statuses } = buildDashboard(
       [purchase({ status: 'IN_BRAZIL' }), purchase({ status: 'DELIVERED', receivedAt: '2026-10-05' })],
