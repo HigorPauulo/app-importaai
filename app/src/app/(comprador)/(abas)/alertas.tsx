@@ -1,15 +1,12 @@
-import { Header, Screen } from '@/shared/ui';
+import { router } from 'expo-router';
 
-export default function AlertsScreen() {
+import { AlertsScreen } from '@/features/alertas/ui/AlertsScreen';
+
+export default function AlertsRoute() {
   return (
-    <Screen
-      header={<Header title="Alertas" />}
-      status="empty"
-      empty={{
-        icon: 'check-circle',
-        title: 'Nenhum alerta',
-        description: 'Tudo em dia. Avisamos aqui quando uma encomenda for taxada, atrasar, parar ou chegar perto do prazo de reclamação.',
-      }}
+    <AlertsScreen
+      onOpenPurchase={(id) => router.navigate({ pathname: '/compras/[id]', params: { id } })}
+      onEditPurchase={(id) => router.push({ pathname: '/compra/editar/[id]', params: { id } })}
     />
   );
 }
