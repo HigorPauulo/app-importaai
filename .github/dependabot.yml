@@ -1,6 +1,6 @@
 # Atualizações semanais em PR, no padrão de commit do projeto.
-# Os blocos de maven (/api) e npm (/app) entram junto com H-02 e H-01:
-# o Dependabot falha se a pasta ainda não existe.
+# O bloco de maven (/api) entra junto com a H-02: o Dependabot falha se a pasta
+# ainda não existe.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -11,3 +11,17 @@ updates:
     commit-message:
       prefix: "chore(ci)"
     labels: ["dependencias"]
+
+  # O Expo fixa versões compatíveis por SDK; atualizar a SDK é tarefa à parte
+  # (npx expo install --fix), por isso só correções e versões menores aqui.
+  - package-ecosystem: npm
+    directory: /app
+    target-branch: develop
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "chore(app)"
+    labels: ["dependencias", "app"]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
