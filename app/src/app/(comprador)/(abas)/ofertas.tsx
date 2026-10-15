@@ -12,6 +12,7 @@ export default function OffersRoute() {
       hasUnreadAlerts={hasUnreadAlerts}
       onNewOffer={(groupId) => router.push({ pathname: '/oferta/nova', params: groupId ? { grupo: groupId } : {} })}
       onOfferPress={(id) => router.push({ pathname: '/oferta/[id]', params: { id } })}
+      onCompare={(groupId) => router.push({ pathname: '/comparar/[grupo]', params: { grupo: groupId } })}
     />
   );
 }
