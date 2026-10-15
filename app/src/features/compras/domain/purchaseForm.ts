@@ -70,10 +70,12 @@ export function normalizeTrackingCode(text: string): string {
 const TRACKING_CODE = /^[A-Z0-9]{8,40}$/;
 
 // Validação do formulário (RF-08): cada erro no seu campo, nada gravado enquanto houver um (CT-16).
+// `receivedAt`: recebimento já confirmado; a compra não pode passar a ser depois dele.
 export function validatePurchaseDraft(
   draft: PurchaseDraft,
   minorUnits: number,
   today: string,
+  receivedAt: string | null = null,
 ): { errors: PurchaseDraftErrors; values: PurchaseValues | null } {
   const errors: PurchaseDraftErrors = {};
   const trackingCode = normalizeTrackingCode(draft.trackingCode);
@@ -91,6 +93,7 @@ export function validatePurchaseDraft(
   if (shippingMinor === null) errors.shipping = 'Informe o frete, ou 0,00 se foi grátis.';
   if (!purchaseDate) errors.purchaseDate = 'Use o formato dd/mm/aaaa.';
   else if (purchaseDate > today) errors.purchaseDate = 'A compra não pode ser no futuro.';
+  else if (receivedAt && purchaseDate > receivedAt) errors.purchaseDate = `A compra não pode ser depois do recebimento, em ${formatDayMonth(receivedAt)}.`;
   if (!promisedDate) errors.promisedDate = 'Use o formato dd/mm/aaaa.';
   else if (purchaseDate && promisedDate < purchaseDate) errors.promisedDate = 'O prazo não pode ser antes da compra.';
   if (draft.hasTax) {

@@ -59,6 +59,11 @@ describe('validatePurchaseDraft (RF-08)', () => {
       taxDueDate: '2026-10-15',
     });
   });
+  it('com o recebimento confirmado, a compra não pode passar a ser depois dele', () => {
+    expect(validatePurchaseDraft({ ...draft, purchaseDate: '11/10/2026', promisedDate: '28/10/2026' }, 2, today, '2026-10-10').errors).toEqual({
+      purchaseDate: 'A compra não pode ser depois do recebimento, em 10/10.',
+    });
+  });
 });
 
 describe('parseMoney', () => {

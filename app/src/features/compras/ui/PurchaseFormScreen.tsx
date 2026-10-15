@@ -58,6 +58,9 @@ type LoadState =
       draft: PurchaseDraft;
       isLocked: boolean;
       offerStoreName: string | null;
+      receivedAt: string | null;
+      // Taxa já paga não pode ser removida: o pagamento ficaria sem taxa.
+      isTaxPaid: boolean;
     };
 
 const DUPLICATE_CODE = 'Você já cadastrou este código. Abrir compra existente';
@@ -121,6 +124,8 @@ async function loadFormState(db: SQLiteDatabase, purchaseId: string | undefined,
       draft,
       isLocked: purchase ? isConcluded(purchase.status) : false,
       offerStoreName: offer?.storeName ?? null,
+      receivedAt: purchase?.receivedAt ?? null,
+      isTaxPaid: Boolean(purchase?.taxPaidAt),
     };
   } catch {
     return { status: 'error' };
@@ -174,7 +179,7 @@ export function PurchaseFormScreen({ purchaseId, offerId, onBack, onSaved, onOpe
     );
   }
 
-  const { stores, currencies, rates, draft, isLocked, offerStoreName } = state;
+  const { stores, currencies, rates, draft, isLocked, offerStoreName, receivedAt, isTaxPaid } = state;
   const minorUnits = currencies.find((currency) => currency.code === draft.currency)?.minorUnits ?? 2;
   const isFieldLocked = (field: keyof PurchaseDraft) => isLocked && PROTECTED_FIELDS.includes(field);
 
@@ -210,7 +215,7 @@ export function PurchaseFormScreen({ purchaseId, offerId, onBack, onSaved, onOpe
   }
 
   async function handleSave() {
-    const { errors: fieldErrors, values } = validatePurchaseDraft(draft, minorUnits, today);
+    const { errors: fieldErrors, values } = validatePurchaseDraft(draft, minorUnits, today, receivedAt);
     setErrors(fieldErrors);
     setSaveFailed(false);
     if (!values) return;
@@ -333,7 +338,9 @@ export function PurchaseFormScreen({ purchaseId, offerId, onBack, onSaved, onOpe
                   <TextField {...dateProps('taxDueDate')} label="Vencimento" />
                 </View>
               </View>
-              <LinkRow icon="trash" label="Remover taxa" onPress={() => update({ hasTax: false, taxAmount: '', taxDueDate: '' })} />
+              {!isTaxPaid && (
+                <LinkRow icon="trash" label="Remover taxa" onPress={() => update({ hasTax: false, taxAmount: '', taxDueDate: '' })} />
+              )}
             </FormSection>
           ) : (
             <LinkRow icon="plus" label="Adicionar taxa de importação" onPress={() => update({ hasTax: true })} />
