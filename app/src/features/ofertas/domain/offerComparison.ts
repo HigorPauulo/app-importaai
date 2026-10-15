@@ -12,6 +12,7 @@ export type ComparedOffer = {
   importTax: number;
   icms: number;
   total: number;
+  thresholdUsd: string;
 };
 
 export type Comparison = {
@@ -35,7 +36,7 @@ const PART_LABELS: Record<Part, string> = {
 // somarem exatamente o custo final (RN10: o total é a soma das parcelas exibidas).
 function toCompared(offer: OfferView): ComparedOffer | null {
   if (offer.estimate.kind !== 'estimated') return null;
-  const { customsMinor, importTaxMinor, icmsMinor, totalMinor, rate } = offer.estimate;
+  const { customsMinor, importTaxMinor, icmsMinor, totalMinor, rate, parameters } = offer.estimate;
   const product = convertToBrl(offer.priceMinor, offer.minorUnits, offer.currency, rate.rateDate, [rate]);
   const productMinor = product.kind === 'converted' ? product.brlMinor : customsMinor;
   return {
@@ -46,6 +47,7 @@ function toCompared(offer: OfferView): ComparedOffer | null {
     importTax: importTaxMinor,
     icms: icmsMinor,
     total: totalMinor,
+    thresholdUsd: parameters.thresholdUsd,
   };
 }
 
@@ -62,7 +64,8 @@ function explain(best: ComparedOffer, runnerUp: ComparedOffer, mainPart: Part): 
     case 'PRODUCT':
       return 'A maior parte da diferença vem do preço do produto.';
     case 'IMPORT_TAX':
-      return 'A maior parte da diferença vem do imposto de importação, que muda de faixa acima de US$ 50.';
+      // O limite da faixa vem dos parâmetros vigentes (RN10), e não de um valor fixo no texto.
+      return `A maior parte da diferença vem do imposto de importação, que muda de faixa acima de US$ ${best.thresholdUsd.replace('.', ',')}.`;
     case 'ICMS':
       return 'A maior parte da diferença vem do ICMS, calculado sobre o valor com o imposto.';
   }
