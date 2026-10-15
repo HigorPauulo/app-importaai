@@ -4,6 +4,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { listAllExchangeRates } from '@/features/referencia/data/currencyRepository';
 import type { ExchangeRate } from '@/features/referencia/domain/currencyConverter';
 import { formatDayMonth, toIsoDate } from '@/shared/date';
 import { ActionSheet, Card, CostLine, Icon, Screen, StackBar, Text, Toast, colors, radius, type SheetAction } from '@/shared/ui';
@@ -13,7 +14,6 @@ import {
   confirmReceipt,
   deletePurchase,
   getPurchase,
-  listExchangeRates,
   listTrackingEvents,
   registerTaxPayment,
   unarchivePurchase,
@@ -50,7 +50,7 @@ function usePurchaseDetail(id: string) {
 
   const load = useCallback(async () => {
     try {
-      const [purchase, events, rates] = await Promise.all([getPurchase(db, id), listTrackingEvents(db, id), listExchangeRates(db)]);
+      const [purchase, events, rates] = await Promise.all([getPurchase(db, id), listTrackingEvents(db, id), listAllExchangeRates(db)]);
       setState(purchase ? { status: 'ready', purchase, events, rates } : { status: 'missing' });
     } catch {
       setState({ status: 'error' });

@@ -2,9 +2,10 @@ import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 
+import { listAllExchangeRates } from '@/features/referencia/data/currencyRepository';
 import type { ExchangeRate } from '@/features/referencia/domain/currencyConverter';
 
-import { listExchangeRates, listPurchases } from '../data/purchaseRepository';
+import { listPurchases } from '../data/purchaseRepository';
 import type { PurchaseDetail } from '../domain/purchaseDetail';
 
 export type PurchasesState =
@@ -20,7 +21,7 @@ export function usePurchases(): { state: PurchasesState; reload: () => Promise<v
 
   const load = useCallback(async () => {
     try {
-      const [purchases, rates] = await Promise.all([listPurchases(db), listExchangeRates(db)]);
+      const [purchases, rates] = await Promise.all([listPurchases(db), listAllExchangeRates(db)]);
       setState({ status: 'ready', purchases, rates });
     } catch {
       setState({ status: 'error' });

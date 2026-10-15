@@ -1,6 +1,5 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-import type { ExchangeRate } from '@/features/referencia/domain/currencyConverter';
 import { uuidV7 } from '@/shared/db/uuid';
 
 import type { PurchaseDetail, TrackingEvent } from '../domain/purchaseDetail';
@@ -45,12 +44,6 @@ export async function listTrackingEvents(db: SQLiteDatabase, purchaseId: string)
     `select id, occurred_at as occurredAt, description, location
        from tracking_events where purchase_id = ? order by occurred_at desc, id desc`,
     purchaseId,
-  );
-}
-
-export async function listExchangeRates(db: SQLiteDatabase): Promise<ExchangeRate[]> {
-  return db.getAllAsync<ExchangeRate>(
-    'select currency, rate_date as rateDate, source, rate from exchange_rates where currency in (select distinct currency from purchases)',
   );
 }
 
