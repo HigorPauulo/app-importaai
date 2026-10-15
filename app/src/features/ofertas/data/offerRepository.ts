@@ -111,14 +111,3 @@ export async function deleteOffer(db: SQLiteDatabase, id: string, groupId: strin
     );
   });
 }
-
-// RF-07: a oferta convertida aponta para a compra criada a partir dela (CT-13).
-export async function linkOfferToPurchase(db: SQLiteDatabase, offerId: string, purchaseId: string): Promise<void> {
-  await db.runAsync(
-    `update offers set purchase_id = ?, sync_state = 'PENDING', mutation_id = ?, updated_at = ? where id = ?`,
-    purchaseId,
-    uuidV7(),
-    new Date().toISOString(),
-    offerId,
-  );
-}

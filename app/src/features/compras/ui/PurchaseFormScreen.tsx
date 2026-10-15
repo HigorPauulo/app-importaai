@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, View, type TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getOffer, linkOfferToPurchase } from '@/features/ofertas/data/offerRepository';
+import { getOffer } from '@/features/ofertas/data/offerRepository';
 import { listActiveCurrencies, listAllExchangeRates, type Currency } from '@/features/referencia/data/currencyRepository';
 import { convertToBrl, formatMoney, type ExchangeRate } from '@/features/referencia/domain/currencyConverter';
 import { formatDayMonth, toIsoDate } from '@/shared/date';
@@ -228,9 +228,7 @@ export function PurchaseFormScreen({ purchaseId, offerId, onBack, onSaved, onOpe
         await updatePurchase(db, purchaseId, values);
         onSaved(purchaseId);
       } else {
-        const id = await createPurchase(db, values);
-        if (offerId) await linkOfferToPurchase(db, offerId, id);
-        onSaved(id);
+        onSaved(await createPurchase(db, values, offerId));
       }
     } catch {
       setSaveFailed(true);

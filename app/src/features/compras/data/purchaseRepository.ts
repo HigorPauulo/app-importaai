@@ -90,29 +90,42 @@ export async function findPurchaseIdByTrackingCode(db: SQLiteDatabase, trackingC
 }
 
 // Nasce no aparelho: row_version 0 ("nunca aceito pelo servidor") e PENDING até a sincronização.
-export async function createPurchase(db: SQLiteDatabase, values: PurchaseValues): Promise<string> {
+// Vinda de uma oferta (RF-07), a compra e o vínculo da oferta entram na mesma transação: se um falhar,
+// nenhum fica gravado, e a nova tentativa não esbarra numa compra solta com o mesmo código (CT-13).
+export async function createPurchase(db: SQLiteDatabase, values: PurchaseValues, offerId?: string): Promise<string> {
   const id = uuidV7();
   const now = new Date().toISOString();
-  await db.runAsync(
-    `insert into purchases (id, store_id, product_description, tracking_code, purchase_date, promised_date,
-                            amount_minor, shipping_minor, currency, tax_minor, tax_due_date,
-                            sync_state, mutation_id, created_at, updated_at)
-     values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?, ?, ?)`,
-    id,
-    values.storeId,
-    values.productDescription,
-    values.trackingCode,
-    values.purchaseDate,
-    values.promisedDate,
-    values.amountMinor,
-    values.shippingMinor,
-    values.currency,
-    values.taxMinor,
-    values.taxDueDate,
-    uuidV7(),
-    now,
-    now,
-  );
+  await db.withExclusiveTransactionAsync(async (txn) => {
+    await txn.runAsync(
+      `insert into purchases (id, store_id, product_description, tracking_code, purchase_date, promised_date,
+                              amount_minor, shipping_minor, currency, tax_minor, tax_due_date,
+                              sync_state, mutation_id, created_at, updated_at)
+       values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?, ?, ?)`,
+      id,
+      values.storeId,
+      values.productDescription,
+      values.trackingCode,
+      values.purchaseDate,
+      values.promisedDate,
+      values.amountMinor,
+      values.shippingMinor,
+      values.currency,
+      values.taxMinor,
+      values.taxDueDate,
+      uuidV7(),
+      now,
+      now,
+    );
+    if (offerId) {
+      await txn.runAsync(
+        `update offers set purchase_id = ?, sync_state = 'PENDING', mutation_id = ?, updated_at = ? where id = ?`,
+        id,
+        uuidV7(),
+        now,
+        offerId,
+      );
+    }
+  });
   return id;
 }
 
