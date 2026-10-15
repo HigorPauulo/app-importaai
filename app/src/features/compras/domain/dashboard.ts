@@ -60,6 +60,7 @@ export type Dashboard = {
 
 // RF-18 e RF-19: os números do painel saem das compras do aparelho, então funcionam sem rede.
 // Arquivar tira a compra do que está a caminho, como na lista, mas ela continua contando no histórico.
+// Compra sem cotação fica fora das somas, e a legenda diz quantas (RN07).
 export function buildDashboard(
   purchases: readonly PurchaseDetail[],
   rates: readonly ExchangeRate[],
@@ -71,19 +72,23 @@ export function buildDashboard(
 
   const open = purchases.filter((purchase) => !purchase.archivedAt && !isConcluded(purchase.status));
   const openValues = open.map((purchase) => paidInBrl(purchase, rates));
-  const withoutRate = openValues.filter((value) => value === null).length;
+  const withoutRate = (values: readonly (number | null)[]) => {
+    const count = values.filter((value) => value === null).length;
+    return count > 0 && `${count} sem cotação, fora da soma`;
+  };
   const pendingTaxes = open.filter((purchase) => purchase.taxMinor !== null && !purchase.taxPaidAt);
   const inTransitCaption = [
     `${plural(open.length, 'compra', 'compras')} a caminho`,
     pendingTaxes.length > 0 &&
       `${pendingTaxes.length} com taxa de ${formatMoney(sum(pendingTaxes.map((purchase) => purchase.taxMinor ?? 0)))} a pagar`,
-    withoutRate > 0 && `${withoutRate} sem cotação, fora da soma`,
+    withoutRate(openValues),
   ]
     .filter(Boolean)
     .join(' · ');
 
   const inPeriod = purchases.filter((purchase) => purchase.purchaseDate >= start && purchase.purchaseDate <= today);
-  const spentMinor = sum(inPeriod.map((purchase) => paidInBrl(purchase, rates) ?? 0));
+  const spentValues = inPeriod.map((purchase) => paidInBrl(purchase, rates));
+  const spentMinor = sum(spentValues.map((value) => value ?? 0));
   const taxesMinor = sum(
     purchases
       .filter((purchase) => purchase.taxPaidAt && purchase.taxPaidAt >= start && purchase.taxPaidAt <= today)
@@ -128,7 +133,7 @@ export function buildDashboard(
 
   return {
     inTransit: { value: formatMoney(sum(openValues.map((value) => value ?? 0))), caption: inTransitCaption },
-    spent: { label: `Gasto ${phrase}`, value: formatMoney(spentMinor), caption: plural(inPeriod.length, 'compra', 'compras') },
+    spent: { label: `Gasto ${phrase}`, value: formatMoney(spentMinor), caption: [plural(inPeriod.length, 'compra', 'compras'), withoutRate(spentValues)].filter(Boolean).join(' · ') },
     taxes: { value: formatMoney(taxesMinor), caption: taxShare },
     months,
     statuses,

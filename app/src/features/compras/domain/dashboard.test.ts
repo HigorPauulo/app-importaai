@@ -67,6 +67,16 @@ describe('buildDashboard (RF-18)', () => {
     expect(buildDashboard(purchases, rates, today, 'MONTH').inTransit).toEqual({ value: 'R$ 100,00', caption: '1 compra a caminho' });
   });
 
+  it('RN07: compra sem cotação fica fora do gasto, e a legenda avisa', () => {
+    const purchases = [purchase({ amountMinor: 10000 }), purchase({ currency: 'USD', amountMinor: 5000 })];
+
+    expect(buildDashboard(purchases, rates, today, 'MONTH').spent).toEqual({
+      label: 'Gasto em outubro',
+      value: 'R$ 100,00',
+      caption: '2 compras · 1 sem cotação, fora da soma',
+    });
+  });
+
   it('compras por situação: as abertas e as entregues no período', () => {
     const { statuses } = buildDashboard(
       [purchase({ status: 'IN_BRAZIL' }), purchase({ status: 'DELIVERED', receivedAt: '2026-10-05' })],
