@@ -206,8 +206,10 @@ exception when foreign_key_violation then
     raise notice 'ok 12: loja em uso protegida';
 end $$;
 
--- 13. Cursor da sincronização: linha alterada numa transação ainda aberta
---     tem change_xid acima do xmin do retrato, então aparece no próximo pull.
+-- 13. Cursor da sincronização: a alteração gravada pela transação corrente tem
+--     change_xid maior ou igual ao xmin do retrato. Prova só a parte que cabe
+--     numa transação; o caso de commit fora de ordem, com duas conexões, é o
+--     CT-62 (teste de integração, ADR-011).
 do $$
 declare
     cursor_xid xid8 := pg_snapshot_xmin(pg_current_snapshot());
@@ -218,7 +220,7 @@ begin
     if row_xid < cursor_xid then
         raise exception 'FALHOU 13: alteração ficaria antes do cursor';
     end if;
-    raise notice 'ok 13: alteração em curso fica no próximo pull (xid % >= cursor %)', row_xid, cursor_xid;
+    raise notice 'ok 13: change_xid da transação corrente >= xmin do retrato (xid % >= cursor %)', row_xid, cursor_xid;
 end $$;
 
 -- 14. A rotina de rastreio não gera conflito falso: registrar a consulta à

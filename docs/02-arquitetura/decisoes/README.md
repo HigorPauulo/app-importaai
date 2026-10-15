@@ -11,8 +11,9 @@ Cada decisão relevante tem um registro com contexto, alternativas descartadas e
 | [005](adr-005-fonte-de-rastreio.md) | Fonte de rastreio atrás de porta, com adaptador simulado e real | aceita, fonte real a validar até o Ciclo 3 |
 | [006](adr-006-fonte-de-cotacao.md) | Cotação do dia e histórica, de fontes gratuitas | aceita, limites a validar no Ciclo 2 |
 | [007](adr-007-notificacoes.md) | Notificações como recurso nativo: push remoto e lembrete local | aceita |
-| [008](adr-008-protocolo-de-sincronizacao.md) | Cursor por transação, trava otimista e envio idempotente | aceita |
+| [008](adr-008-protocolo-de-sincronizacao.md) | Cursor por transação, trava otimista e envio idempotente | aceita, complementada pelo 011 |
 | [009](adr-009-sessao-e-revogacao.md) | Token de acesso curto e renovação opaca com rotação | aceita |
 | [010](adr-010-ocorrencia-de-alerta.md) | Um alerta por ocorrência, com livro de ocorrências | aceita |
+| [011](adr-011-ajustes-da-sincronizacao.md) | Ciclo do `mutation_id`, ordem do envio, trava no pai e cursor com época | aceita |
 
 **Modelo:** Status · Contexto · Decisão · Alternativas consideradas · Consequências · Reavaliar se (quando houver gatilho claro).
