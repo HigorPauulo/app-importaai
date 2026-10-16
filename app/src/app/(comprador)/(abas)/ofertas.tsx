@@ -1,17 +1,18 @@
 import { router } from 'expo-router';
 
-import { Header, Screen } from '@/shared/ui';
+import { useHasUnreadAlerts } from '@/features/alertas/ui/useUnreadAlerts';
+import { OffersScreen } from '@/features/ofertas/ui/OffersScreen';
 
-export default function OffersScreen() {
+export default function OffersRoute() {
+  const hasUnreadAlerts = useHasUnreadAlerts();
+
   return (
-    <Screen
-      header={<Header title="Ofertas" subtitle="Custo final antes de comprar" onAlertsPress={() => router.push('/alertas')} />}
-      status="empty"
-      empty={{
-        icon: 'tag',
-        title: 'Nenhuma oferta ainda',
-        description: 'Registre o preço que encontrou numa loja e veja quanto custa em reais, com frete e impostos, antes de comprar.',
-      }}
+    <OffersScreen
+      onAlertsPress={() => router.push('/alertas')}
+      hasUnreadAlerts={hasUnreadAlerts}
+      onNewOffer={(groupId) => router.push({ pathname: '/oferta/nova', params: groupId ? { grupo: groupId } : {} })}
+      onOfferPress={(id) => router.push({ pathname: '/oferta/[id]', params: { id } })}
+      onCompare={(groupId) => router.push({ pathname: '/comparar/[grupo]', params: { grupo: groupId } })}
     />
   );
 }

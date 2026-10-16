@@ -13,7 +13,7 @@ type HeaderProps = {
   onAvatarPress?: () => void;
 };
 
-// Cabeçalho das telas de aba (componente "Header" do Figma).
+// Cabeçalho das telas de aba (componente "Header" do Figma, com o recuo de 8 usado nas telas).
 export function Header({ title, subtitle, initials, hasUnreadAlerts, onAlertsPress, onAvatarPress }: HeaderProps) {
   return (
     <View style={styles.container}>
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingTop: 20,
+    paddingTop: 8,
     paddingHorizontal: 20,
     paddingBottom: 16,
     backgroundColor: colors.surfaceWhite,

@@ -1,17 +1,16 @@
 import { router } from 'expo-router';
 
-import { Header, Screen } from '@/shared/ui';
+import { useHasUnreadAlerts } from '@/features/alertas/ui/useUnreadAlerts';
+import { DashboardScreen } from '@/features/compras/ui/DashboardScreen';
 
-export default function DashboardScreen() {
+export default function DashboardRoute() {
+  const hasUnreadAlerts = useHasUnreadAlerts();
+
   return (
-    <Screen
-      header={<Header title="Painel" subtitle="Suas compras em números" onAlertsPress={() => router.push('/alertas')} />}
-      status="empty"
-      empty={{
-        icon: 'chart',
-        title: 'Seu painel começa na primeira compra',
-        description: 'Cadastre uma compra para ver o valor em trânsito, os gastos, os impostos e a pontualidade de cada loja.',
-      }}
+    <DashboardScreen
+      onAlertsPress={() => router.push('/alertas')}
+      hasUnreadAlerts={hasUnreadAlerts}
+      onNewPurchase={() => router.push('/compra/nova')}
     />
   );
 }

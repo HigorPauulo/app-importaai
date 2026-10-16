@@ -21,6 +21,8 @@ export const colors = {
   error: '#DC2626',
   errorBg: '#FFE6E6',
   errorDark: '#991B1B',
+  // Véu atrás de folhas e diálogos; o Figma ainda não tem esse token.
+  scrim: 'rgba(0, 0, 0, 0.4)',
 } as const;
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
@@ -51,6 +53,8 @@ export const typography = {
   body15: style(inter.regular, 15, 22),
   body14: style(inter.regular, 14, 20),
   body14Medium: style(inter.medium, 14, 20),
+  // Título do Toast: o componente usa Inter Bold 14 sem estilo de texto próprio no Figma.
+  body14Bold: style(inter.bold, 14, 20),
   caption13: style(inter.regular, 13, 18),
   caption13SemiBold: style(inter.semiBold, 13, 18),
   caption12: style(inter.regular, 12, 16),
